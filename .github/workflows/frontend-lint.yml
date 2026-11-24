@@ -1,0 +1,31 @@
+name: Frontend Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Fix: `deno lint` cannot parse JSX inside .js files (App.js, index.js)
+      # and flags `import React` as unused. ESLint understands React/JSX.
+      - name: Lint
+        run: npx eslint src --ext .js,.jsx
