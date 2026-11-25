@@ -15,19 +15,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Fix: removed `cache: npm` / `cache-dependency-path`, which failed with
-      # "Some specified paths were not resolved" because frontend/package-lock.json
-      # was not found. Once you commit a lockfile, you can re-add:
-      #   cache: npm
-      #   cache-dependency-path: frontend/package-lock.json
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # `npm ci` requires a lockfile; `npm install` works without one.
       - name: Install dependencies
         run: npm install
+
+      # Fix: ESLint had no config file. This installs ESLint + React plugins
+      # for CI only. Commit frontend/.eslintrc.json (provided separately).
+      # Better long-term: add these as devDependencies in package.json
+      #   npm install -D eslint@8 eslint-plugin-react eslint-plugin-react-hooks
+      - name: Install ESLint and React plugins
+        run: npm install --no-save eslint@8 eslint-plugin-react eslint-plugin-react-hooks
 
       - name: Lint
         run: npx eslint src --ext .js,.jsx
